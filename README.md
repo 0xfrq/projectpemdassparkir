@@ -6,3 +6,4 @@ lorem ipsum
 
 ### Fitur Utama:
 - tes
+- cek github
