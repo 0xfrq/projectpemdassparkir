@@ -1,22 +1,55 @@
-name: Dynamic Template
+name: Update README Deadline Countdown
 
 on:
-  create:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # Run setiap jam
 
 jobs:
-  update_templates:
-    name: "Update Templates"
+  update-readme:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: "📥  Fetching Repository Contents"
-        uses: actions/checkout@main
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+    
+    - name: Calculate Deadline
+      id: calculate-deadline
+      run: |
+        from datetime import datetime, timedelta
 
-      # Runs a set of commands using the runners shell
-      - name: Update GitHub Profile README
-        uses: theboi/github-update-readme@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          header: "Hey, I'm Ryan! 👋"
-          subhead: "Currently a student in Singapore, passionate about creating all-things-tech to improve society."
-          footer: "**Learn more about me at [ryanthe.com](https://www.ryanthe.com)!**"
+        # Set timezone to UTC+7 manually
+        def get_jakarta_time():
+            utc_now = datetime.utcnow()
+            jakarta_offset = timedelta(hours=7)
+            return utc_now + jakarta_offset
+
+        deadline = datetime(2024, 12, 23)
+        now = get_jakarta_time()
+        
+        remaining_days = (deadline - now.replace(tzinfo=None)).days
+        
+        with open('README.md', 'r') as file:
+            readme_content = file.read()
+        
+        updated_readme = readme_content.replace(
+            '<!-- deadline-countdown-placeholder -->',
+            f'**{remaining_days} hari lagi** 🕒'
+        )
+        
+        with open('README.md', 'w') as file:
+            file.write(updated_readme)
+      shell: python
+    
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        git commit -m "Update deadline countdown" || exit 0
+        git push
