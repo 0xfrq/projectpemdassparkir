@@ -10,8 +10,8 @@ int main() {
 //disini aneh sekali
 //iya kenapa ya
 
-    cout <<"Github8";
-    cout <<"Vscode9";
+    cout <<"Github";
+    cout <<"Vscode";
 
 return 0;
 }
