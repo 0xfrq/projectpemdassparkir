@@ -1,5 +1,9 @@
 name: Update README with Countdown
 
+# Menetapkan izin untuk workflow
+permissions:
+  contents: write  # Memberikan izin write pada konten repositori
+
 on:
   schedule:
     - cron: '0 17 * * *' # Menjalankan setiap hari pada pukul 17:00 UTC (00:00 UTC+7)
