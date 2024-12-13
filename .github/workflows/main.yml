@@ -12,10 +12,11 @@ jobs:
         uses: actions/checkout@main
 
       # Runs a set of commands using the runners shell
-      - name: Update README.md
-        run: |
-          sed -i 's/<reponame>/'${{ github.event.repository.name }}'/' README.md
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git commit -am "Automated report"
-          git push
+      - name: Update GitHub Profile README
+        uses: theboi/github-update-readme@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          header: "Hey, I'm Ryan! 👋"
+          subhead: "Currently a student in Singapore, passionate about creating all-things-tech to improve society."
+          footer: "**Learn more about me at [ryanthe.com](https://www.ryanthe.com)!**"
