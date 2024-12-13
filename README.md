@@ -1,6 +1,6 @@
 # Project Pemdas Parkir
 
-``Deadline : XXX hari lagi``
+``Deadline : 10 hari lagi``
 
 ---
 Fitur Utama:
