@@ -1,11 +1,9 @@
-name: Update README with Days Left
+name: Update README with Countdown
 
 on:
   schedule:
-    - cron: '0 17 * * *'  # Setiap hari pada pukul 00:00 Jakarta (17:00 UTC)
-  push:
-    branches:
-      - main
+    - cron: '0 17 * * *' # Menjalankan setiap hari pada pukul 17:00 UTC (00:00 UTC+7)
+  workflow_dispatch:
 
 jobs:
   update-readme:
@@ -13,27 +11,61 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # Jika menggunakan pytz, uncomment baris berikut
+          # pip install pytz
 
-      - name: Run the script to update README
+      - name: Calculate days remaining
+        id: countdown
         run: |
-          python count_days.py  # Pastikan path ke file Python sudah benar
+          from datetime import datetime
+          try:
+              from zoneinfo import ZoneInfo
+          except ImportError:
+              from backports.zoneinfo import ZoneInfo  # Untuk versi Python < 3.9
 
-      - name: Commit and push updated README
+          # Tentukan zona waktu Jakarta
+          jakarta_tz = ZoneInfo("Asia/Jakarta")
+
+          # Tentukan deadline
+          deadline = datetime(2024, 12, 23, tzinfo=jakarta_tz)
+
+          # Dapatkan tanggal hari ini di zona waktu Jakarta
+          today = datetime.now(jakarta_tz).date()
+
+          delta = deadline.date() - today
+          days_left = delta.days
+
+          # Pastikan hari tidak negatif
+          if days_left < 0:
+              days_left = 0
+
+          print(f"DAYS_LEFT={days_left}")
+          # Menyimpan output agar bisa digunakan di langkah berikutnya
+          # Perhatikan bahwa 'set-output' sudah deprecated, gunakan GITHUB_OUTPUT
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"days={days_left}\n")
+
+      - name: Update README
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@users.noreply.github.com"
-          
-          # Gunakan GITHUB_TOKEN untuk autentikasi dan push
+          DAYS_LEFT=${{ steps.countdown.outputs.days }}
+          # Mengganti 'XXX hari lagi' dengan jumlah hari yang tersisa
+          sed -i "s/XXX hari lagi/${DAYS_LEFT} hari lagi/" README.md
+
+      - name: Commit and push changes
+        run: |
+          DAYS_LEFT=${{ steps.countdown.outputs.days }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git commit -m "Update README with days left"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git commit -m "Update countdown: ${DAYS_LEFT} hari lagi"
+          git push
