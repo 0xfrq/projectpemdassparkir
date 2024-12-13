@@ -9,9 +9,7 @@ int main() {
     cout << p;
 //disini aneh sekali
 //iya kenapa ya
-
     cout <<"Github";
     cout <<"Vscode";
-
 return 0;
 }
