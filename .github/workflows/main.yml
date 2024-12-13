@@ -37,10 +37,10 @@ jobs:
             readme_lines = file.readlines()
         
         # Update or add deadline line
-        if readme_lines and readme_lines[0].startswith('# Deadline'):
-            readme_lines[0] = f'# Deadline : {remaining_days} hari lagi\n'
+        if readme_lines and readme_lines[0].startswith('``` Deadline'):
+            readme_lines[0] = f'``` Deadline : {remaining_days} hari lagi\n```'
         else:
-            readme_lines.insert(0, f'# Deadline : {remaining_days} hari lagi\n')
+            readme_lines.insert(0, f'``` Deadline : {remaining_days} hari lagi\n```')
         
         # Write updated content back to README
         with open('README.md', 'w') as file:
