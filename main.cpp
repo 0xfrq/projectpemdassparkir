@@ -84,8 +84,7 @@ int main() {
 
 void masuk(const string& dateclean) {
     ofstream dbkendaraan;
-    string nopol;
-    string intipe;
+    string nopol, intipe;
     int tipe;
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
