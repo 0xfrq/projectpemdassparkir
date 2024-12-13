@@ -13,37 +13,28 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
-    
-    - name: Calculate Deadline
-      id: calculate-deadline
+    - name: Update Deadline Countdown
       run: |
-        from datetime import datetime, timedelta
-
-        # Set timezone to UTC+7 manually
-        def get_jakarta_time():
-            utc_now = datetime.utcnow()
-            jakarta_offset = timedelta(hours=7)
-            return utc_now + jakarta_offset
-
-        deadline = datetime(2024, 12, 23)
-        now = get_jakarta_time()
+        from datetime import datetime, timezone
         
-        remaining_days = (deadline - now.replace(tzinfo=None)).days
+        # Calculate remaining days
+        deadline = datetime(2024, 12, 23, tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        remaining_days = (deadline - now).days
         
+        # Read existing README content
         with open('README.md', 'r') as file:
-            readme_content = file.read()
+            readme_lines = file.readlines()
         
-        updated_readme = readme_content.replace(
-            '<!-- deadline-countdown-placeholder -->',
-            f'**{remaining_days} hari lagi** 🕒'
-        )
+        # Update or add deadline line
+        if readme_lines and readme_lines[0].startswith('# Deadline'):
+            readme_lines[0] = f'# Deadline : {remaining_days} hari lagi\n'
+        else:
+            readme_lines.insert(0, f'# Deadline : {remaining_days} hari lagi\n')
         
+        # Write updated content back to README
         with open('README.md', 'w') as file:
-            file.write(updated_readme)
+            file.writelines(readme_lines)
       shell: python
     
     - name: Commit and push if changed
@@ -51,5 +42,4 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add README.md
-        git commit -m "Update deadline countdown" || exit 0
-        git push
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update deadline countdown" && git push)
