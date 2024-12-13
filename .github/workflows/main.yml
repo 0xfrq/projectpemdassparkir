@@ -2,7 +2,7 @@ name: Update README with Days Left
 
 on:
   schedule:
-    - cron: '0 17 * * *'  
+    - cron: '0 17 * * *'  # Setiap hari pada pukul 00:00 Jakarta (17:00 UTC)
   push:
     branches:
       - main
@@ -33,7 +33,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
           
-          # Gunakan GITHUB_TOKEN untuk autentikasi
+          # Gunakan GITHUB_TOKEN untuk autentikasi dan push
           git add README.md
           git commit -m "Update README with days left"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
