@@ -3,7 +3,7 @@ name: Update README Deadline Countdown
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'  # Run setiap jam
+    - cron: '0 * * * *'  
 
 permissions:
   contents: write
