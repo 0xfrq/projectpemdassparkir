@@ -1,6 +1,5 @@
 name: Update README with Countdown
 
-# Menetapkan izin untuk workflow
 permissions:
   contents: write  # Memberikan izin write pada konten repositori
 
