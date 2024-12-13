@@ -2,7 +2,7 @@ name: Update README with Days Left
 
 on:
   schedule:
-    - cron: '0 17 * * *'
+    - cron: '0 17 * * *'  
   push:
     branches:
       - main
@@ -26,12 +26,14 @@ jobs:
 
       - name: Run the script to update README
         run: |
-          python count_days.py
+          python count_days.py  # Pastikan path ke file Python sudah benar
 
       - name: Commit and push updated README
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
+          
+          # Gunakan GITHUB_TOKEN untuk autentikasi
           git add README.md
           git commit -m "Update README with days left"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
