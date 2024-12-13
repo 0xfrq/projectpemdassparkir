@@ -21,12 +21,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Jika menggunakan pytz, uncomment baris berikut
-          # pip install pytz
+          # Jika menggunakan backports.zoneinfo untuk Python < 3.9, uncomment baris berikut
+          # pip install backports.zoneinfo
 
       - name: Calculate days remaining
         id: countdown
+        shell: bash
         run: |
+          python <<EOF
+          import os
           from datetime import datetime
           try:
               from zoneinfo import ZoneInfo
@@ -51,9 +54,9 @@ jobs:
 
           print(f"DAYS_LEFT={days_left}")
           # Menyimpan output agar bisa digunakan di langkah berikutnya
-          # Perhatikan bahwa 'set-output' sudah deprecated, gunakan GITHUB_OUTPUT
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f"days={days_left}\n")
+          EOF
 
       - name: Update README
         run: |
