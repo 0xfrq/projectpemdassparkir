@@ -109,9 +109,16 @@ string formatID(const string& id) {
 
 string id; // disini agar bisa dipakai untuk masuk & keluar
 void masuk(const string& dateclean) {
-    ofstream dbkendaraan;
+    ofstream dbkendaraan, historyFile;
     string intipe;
     int tipe;
+
+    //Mendapatkan waktu saat ini
+    time_t now = time(0);
+    tm* localtm = localtime(&now);
+    char jamMasuk[6];
+    strftime (jamMasuk, sizeof (jamMasuk), "%H:%M", localtm);
+
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
     cout << "=============================" << endl << endl << endl;
@@ -130,14 +137,27 @@ void masuk(const string& dateclean) {
     
     dbkendaraan.open(dateclean + ".txt", ios::app);
     dbkendaraan << "\n" << id << ";" << rdnumber() << ";" << "sektor" <<";" << intipe;
+
+    //Menulis data ke file history
+    historyFile.open("history.txt", ios::app);
+    historyFile << dateclean << ";" << "sektor" << ";" << intipe << ";" << jamMasuk << ";-\n";
+    historyFile.close();
+
     cout << "*mencetak karcis untuk: \nNopol : " << formattedID << "\nKode : " << rdnumber();
 }
 
 void keluar(const string& dateclean){
-    ifstream dbkendaraanInput;
-    ofstream dbkendaraanOutput;
-    string line, nopol, kode, sektor, tipe;
+    ifstream dbkendaraanInput, historyFileInput;
+    ofstream dbkendaraanOutput, historyFileOutput;
+    string line, nopol, kode, sektor, tipe, jamMasuk, jamKeluar;
     bool found = false;
+
+    //Waktu saat ini
+    time_t now = time(0);
+    tm* localtm = localtime(&now);
+    char currentJam[6];
+    strftime(currentJam, sizeof(currentJam), "%H:%M", localtm);
+    jamKeluar = string(currentJam);
 
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu keluar" << endl;
@@ -179,6 +199,24 @@ void keluar(const string& dateclean){
                 cout << "Sektor: " << sektor << "\n";
                 cout << "Tipe Kendaraan: " << tipe << "\n";
                 cout << "Kendaraan berhasil keluar. Terima kasih!" << endl;
+                
+                //Tambah data di file history dengan jam keluar
+                historyFileInput.open("history.txt");
+                historyFileOutput.open("temp_history.txt");
+                string historyLine;
+                while (getline(historyFileInput, historyLine)){
+                    if (historyLine.find(nopol) != string::npos &&
+                    historyLine.find("-") != string::npos) {
+                        size_t lastDelimiter = historyLine.rfind(';');
+                        historyLine = historyLine.substr(0, lastDelimiter) + ";" + jamKeluar;
+                    }
+                    historyFileOutput << historyLine << "\n";
+                }
+                historyFileInput.close();
+                historyFileOutput.close();
+                //Ganti File history dengan yang sudah update
+                remove("history.txt");
+                rename("temp_history.txt", "history.txt");
                 continue;
             }
         }
@@ -187,6 +225,8 @@ void keluar(const string& dateclean){
     }
     dbkendaraanInput.close();
     dbkendaraanOutput.close();
+
+
 
     // Ganti file lama dengan file baru jika kendaraan ditemukan
     if (found) {
