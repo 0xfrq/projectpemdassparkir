@@ -1,10 +1,15 @@
 #include <iostream>
 #include <ctime>
 #include <fstream>
+#include <cmath>
+#include <string>
+#include <cstring>
+#include <cstdint>
 using namespace std;
 
 
 void masuk(const string& dateclean);
+void keluar(const string& dateclean);
 bool checkdatabase(const string& formatted_date) {
     ofstream dbkendaraan;
     if (ifstream(formatted_date + ".txt")) {
@@ -66,13 +71,13 @@ int main() {
             masuk(dateclean);
             break;
         case 2:
-            cout << ".." << endl;
+            keluar(dateclean);
             break;
         case 3:
             cout << "..." << endl;
             break;
         case 4:
-            cout << "...." << endl;
+            cout << "Anda telah keluar dari program" << endl;
             break;
         default:
             cout << "Pilihan tidak valid" << endl;
@@ -82,14 +87,36 @@ int main() {
     return 0;
 }
 
+// format agar outputnya memiliki spasi pada nopol, namun data di txt tetap tanpa spasi sebagi id
+string formatID(const string& id) {
+    string formatted;
+    size_t length = id.length();
+
+    for (size_t i = 0; i < length; ++i) {
+        char c = id[i];
+        formatted += c;
+
+        if (i == 0 && isalpha(c) && i + 1 < length && isdigit(id[i + 1])) {
+            formatted += " ";
+        }
+
+        if (i + 1 < length && isdigit(c) && isalpha(id[i + 1])) {
+            formatted += " ";
+        }
+    }
+    return formatted;
+}
+
+string id; // disini agar bisa dipakai untuk masuk & keluar
 void masuk(const string& dateclean) {
     ofstream dbkendaraan;
-    string nopol, intipe;
+    string intipe;
     int tipe;
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
     cout << "=============================" << endl << endl << endl;
     cout << "Pilih Tipe Kendaraan : \n1. Motor\n2. Mobil\n";
+    cout << "Pilihan: ";
     cin >> tipe;
     if (tipe==1) {
         intipe = "Motor";
@@ -97,8 +124,79 @@ void masuk(const string& dateclean) {
         intipe = "Mobil";
     }
     cout << "Masukkan Nomor Polisi (tanpa spasi): ";
-    cin >> nopol;
+    cin >> id;
+
+    string formattedID = formatID(id);
+    
     dbkendaraan.open(dateclean + ".txt", ios::app);
-    dbkendaraan << "\n" << nopol << ";" << rdnumber() << ";" << "sektor" <<";" << intipe;
-    cout << "*mencetak karcis untuk: \nNopol : " << nopol << "\nKode : " << rdnumber();
+    dbkendaraan << "\n" << id << ";" << rdnumber() << ";" << "sektor" <<";" << intipe;
+    cout << "*mencetak karcis untuk: \nNopol : " << formattedID << "\nKode : " << rdnumber();
+}
+
+void keluar(const string& dateclean){
+    ifstream dbkendaraanInput;
+    ofstream dbkendaraanOutput;
+    string line, nopol, kode, sektor, tipe;
+    bool found = false;
+
+    cout << "=============================" << endl;
+    cout << "Selamat datang pada menu keluar" << endl;
+    cout << "=============================" << endl;
+
+    cout << "Masukkan Nomor Polisi (tanpa spasi): ";
+    cin >> id;
+
+     // Membuka file
+    dbkendaraanInput.open(dateclean + ".txt");
+    if (!dbkendaraanInput.is_open()) {
+        cout << "File tidak ditemukan!" << endl;
+        return;
+    }
+
+    // Buat file sementara menyimpan data baru
+    dbkendaraanOutput.open("temp.txt");
+
+    // Baca file
+    while (getline(dbkendaraanInput, line)) {
+        size_t pos = line.find(';');
+        if (pos != string::npos) {
+            nopol = line.substr(0, pos);
+            if (nopol == id) {
+                // Data ditemukan
+                found = true;
+
+                // Mencari informasi kendaraan untuk ditampilkan
+                size_t kodePos = line.find(';', pos + 1);
+                size_t sektorPos = line.find(';', kodePos + 1);
+
+                kode = line.substr(pos + 1, kodePos - pos - 1);
+                sektor = line.substr(kodePos + 1, sektorPos - kodePos - 1);
+                tipe = line.substr(sektorPos + 1);
+
+                cout << "Kendaraan ditemukan:\n";
+                cout << "Nopol: " << formatID(nopol) << "\n";
+                cout << "Kode Karcis: " << kode << "\n";
+                cout << "Sektor: " << sektor << "\n";
+                cout << "Tipe Kendaraan: " << tipe << "\n";
+                cout << "Kendaraan berhasil keluar. Terima kasih!" << endl;
+                continue;
+            }
+        }
+        //Menyalin data file utama yang bukan kendaraan yang keluar ke file sementara.
+        dbkendaraanOutput << line << "\n";
+    }
+    dbkendaraanInput.close();
+    dbkendaraanOutput.close();
+
+    // Ganti file lama dengan file baru jika kendaraan ditemukan
+    if (found) {
+        if (remove((dateclean + ".txt").c_str()) != 0) {
+            cout << "Gagal menghapus file lama!" << endl;
+        } else if (rename("temp.txt", (dateclean + ".txt").c_str()) != 0) {
+            cout << "Gagal mengganti file sementara!" << endl;
+        }
+    } else {
+        cout << "Kendaraan dengan Nopol " << formatID(id) << " tidak ditemukan!" << endl;
+        remove("temp.txt"); // Hapus file sementara jika tidak ada perubahan
+    }
 }
