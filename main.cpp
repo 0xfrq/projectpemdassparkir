@@ -7,6 +7,15 @@
 #include <cstdint>
 using namespace std;
 
+//Struct Karcis
+struct Ticket {
+    string nopol;
+    int kode;
+    string sektor;
+    string tipeKendaraan;
+    string entryTime;
+};
+
 
 void masuk(const string& dateclean);
 void keluar(const string& dateclean);
@@ -91,18 +100,27 @@ int main() {
 string formatID(const string& id) {
     string formatted;
     size_t length = id.length();
+    int index = 0;
 
-    for (size_t i = 0; i < length; ++i) {
-        char c = id[i];
-        formatted += c;
+    while (index, length && isalpha(id[index])) {
+        formatted += id[index];
+        index++;
+    }
+    if (!formatted.empty() && index < length){
+        formatted += " ";
+    }
 
-        if (i == 0 && isalpha(c) && i + 1 < length && isdigit(id[i + 1])) {
-            formatted += " ";
-        }
+    while (index < length && isdigit(id[index])) {
+        formatted += id[index];
+        index++;
+    }
+    if (!formatted.empty() && index < length){
+        formatted += " ";
+    }
 
-        if (i + 1 < length && isdigit(c) && isalpha(id[i + 1])) {
-            formatted += " ";
-        }
+    while (index < length && isalpha(id[index])) {
+        formatted += id[index];
+        index++;
     }
     return formatted;
 }
@@ -112,12 +130,15 @@ void masuk(const string& dateclean) {
     ofstream dbkendaraan, historyFile;
     string intipe;
     int tipe;
+    Ticket ticket;
 
     //Mendapatkan waktu saat ini
     time_t now = time(0);
     tm* localtm = localtime(&now);
     char jamMasuk[6];
     strftime (jamMasuk, sizeof (jamMasuk), "%H:%M", localtm);
+    ticket.entryTime = string (jamMasuk);
+
 
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
@@ -134,16 +155,21 @@ void masuk(const string& dateclean) {
     cin >> id;
 
     string formattedID = formatID(id);
+    ticket.nopol = formattedID;
+    ticket.kode = rdnumber();
+    ticket.sektor = "sektor"; //Sektor sementara
+    ticket.tipeKendaraan = intipe;
     
     dbkendaraan.open(dateclean + ".txt", ios::app);
-    dbkendaraan << "\n" << id << ";" << rdnumber() << ";" << "sektor" <<";" << intipe;
+    dbkendaraan << "\n" << id << ";" << ticket.kode << ";" << "sektor" <<";" << ticket.tipeKendaraan << ";" << ticket.entryTime;
+    dbkendaraan.close();
 
     //Menulis data ke file history
     historyFile.open("history.txt", ios::app);
-    historyFile << dateclean << ";" << "sektor" << ";" << intipe << ";" << jamMasuk << ";-\n";
+    historyFile << "\n" << dateclean << ";" << ticket.nopol << ";" << "sektor" << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";-\n";
     historyFile.close();
 
-    cout << "*mencetak karcis untuk: \nNopol : " << formattedID << "\nKode : " << rdnumber();
+    cout << "Mencetak karcis untuk: \nNopol : " << ticket.nopol << "\nKode : " << ticket.kode << "\nSektor : " << ticket.sektor << "\n Jam Masuk : " << ticket.entryTime ;
 }
 
 void keluar(const string& dateclean){
