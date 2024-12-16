@@ -7,7 +7,7 @@
 #include <cstdint>
 using namespace std;
 
-//Struct Karcis
+// Struct Karcis
 struct Ticket {
     string nopol;
     int kode;
@@ -16,7 +16,23 @@ struct Ticket {
     string entryTime;
 };
 
+// Struct Sektor
+struct Sektor {
+    string nama;
+    int kapasitasMaks;
+    int kendaraanSaatIni;
+};
 
+// Array sektor parkir
+Sektor sektorparkir[] = {
+    {"B1", 800, 0},
+    {"B2", 600, 0},
+    {"C1", 600, 0},
+    {"C2", 450, 0}
+};
+const int jumlahSektor = 4;
+
+void tampilkanSektor();
 void masuk(const string& dateclean);
 void keluar(const string& dateclean);
 bool checkdatabase(const string& formatted_date) {
@@ -36,18 +52,37 @@ int rdnumber() {
 
     // Generate a 4-digit number
     for (int i = 0; i < 4; ++i) {
-        // A simple formula to choose a "random" index from 0 to 8
         int index = (counter * 12345 + 6789) % 9;  // A basic function to vary the index
         int digit = digits[index];  // Get the corresponding digit from the array
 
-        // Append the digit to the random number
-        randomNumber = randomNumber * 10 + digit;
-
-        // Increment the counter to ensure different results each time
+        randomNumber = randomNumber * 10 + digit;  // Append the digit to the random number
         counter++;
     }
 
     return randomNumber;  // Return the random 4-digit number
+}
+
+void loadSektorData() {
+    ifstream sektorFile("sektor_data.txt");
+    string line;
+    if (sektorFile.is_open()) {
+        int i = 0;
+        while (getline(sektorFile, line) && i < jumlahSektor) {
+            size_t pos1 = line.find(';');
+            size_t pos2 = line.find(';', pos1 + 1);
+            sektorparkir[i].kendaraanSaatIni = stoi(line.substr(pos1 + 1, pos2 - pos1 - 1));  // Parse current vehicle count
+            i++;
+        }
+        sektorFile.close();
+    }
+}
+
+void saveSektorData() {
+    ofstream sektorFile("sektor_data.txt");
+    for (int i = 0; i < jumlahSektor; ++i) {
+        sektorFile << sektorparkir[i].nama << ";" << sektorparkir[i].kendaraanSaatIni << "\n";
+    }
+    sektorFile.close();
 }
 
 int main() {
@@ -66,6 +101,9 @@ int main() {
         cout << "Selamat Pagi, \n" << datelengkap << endl << endl;
     }
 
+    // Load sektor data from file at the start
+    loadSektorData();
+
     int p1;
     cout << "=== Sistem Pengelolaan Parkir ===" << endl;
     cout << "1. Kendaraan Masuk" << endl;
@@ -83,7 +121,7 @@ int main() {
             keluar(dateclean);
             break;
         case 3:
-            cout << "..." << endl;
+            tampilkanSektor();
             break;
         case 4:
             cout << "Anda telah keluar dari program" << endl;
@@ -93,7 +131,18 @@ int main() {
             break;
     }
 
+    // Save sektor data back to file after the operation
+    saveSektorData();
+
     return 0;
+}
+
+// Fungsi tampilkan sektor
+void tampilkanSektor(){
+    cout << "\n=== Status Sektor Parkir ===" << endl;
+    for (int i = 0; i < jumlahSektor; i++) {
+        cout << "Sektor " << sektorparkir[i].nama << "\nKapasitas Maks: " << sektorparkir[i].kapasitasMaks << "\nTerisi: " << sektorparkir[i].kendaraanSaatIni << endl;
+    }
 }
 
 // format agar outputnya memiliki spasi pada nopol, namun data di txt tetap tanpa spasi sebagi id
@@ -102,11 +151,11 @@ string formatID(const string& id) {
     size_t length = id.length();
     int index = 0;
 
-    while (index, length && isalpha(id[index])) {
+    while (index < length && isalpha(id[index])) {
         formatted += id[index];
         index++;
     }
-    if (!formatted.empty() && index < length){
+    if (!formatted.empty() && index < length) {
         formatted += " ";
     }
 
@@ -114,7 +163,7 @@ string formatID(const string& id) {
         formatted += id[index];
         index++;
     }
-    if (!formatted.empty() && index < length){
+    if (!formatted.empty() && index < length) {
         formatted += " ";
     }
 
@@ -132,13 +181,12 @@ void masuk(const string& dateclean) {
     int tipe;
     Ticket ticket;
 
-    //Mendapatkan waktu saat ini
+    // Mendapatkan waktu saat ini
     time_t now = time(0);
     tm* localtm = localtime(&now);
     char jamMasuk[6];
-    strftime (jamMasuk, sizeof (jamMasuk), "%H:%M", localtm);
-    ticket.entryTime = string (jamMasuk);
-
+    strftime(jamMasuk, sizeof(jamMasuk), "%H:%M", localtm);
+    ticket.entryTime = string(jamMasuk);
 
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
@@ -146,39 +194,67 @@ void masuk(const string& dateclean) {
     cout << "Pilih Tipe Kendaraan : \n1. Motor\n2. Mobil\n";
     cout << "Pilihan: ";
     cin >> tipe;
-    if (tipe==1) {
+    if (tipe == 1) {
         intipe = "Motor";
+        cout << "Pilih Sektor Parkir (B1 atau B2): ";
+        string sektorPilihan;
+        cin >> sektorPilihan;
+
+        if (sektorPilihan == "B1" && sektorparkir[0].kendaraanSaatIni < sektorparkir[0].kapasitasMaks) {
+            sektorparkir[0].kendaraanSaatIni++;
+            ticket.sektor = "B1";
+        } else if (sektorPilihan == "B2" && sektorparkir[1].kendaraanSaatIni < sektorparkir[1].kapasitasMaks) {
+            sektorparkir[1].kendaraanSaatIni++;
+            ticket.sektor = "B2";
+        } else {
+            cout << "Sektor Penuh atau Tidak Valid!" << endl;
+            return;
+        }
     } else {
         intipe = "Mobil";
+        cout << "Pilih Sektor Parkir (C1 atau C2): ";
+        string sektorPilihan;
+        cin >> sektorPilihan;
+
+        if (sektorPilihan == "C1" && sektorparkir[2].kendaraanSaatIni < sektorparkir[2].kapasitasMaks) {
+            sektorparkir[2].kendaraanSaatIni++;
+            ticket.sektor = "C1";
+        } else if (sektorPilihan == "C2" && sektorparkir[3].kendaraanSaatIni < sektorparkir[3].kapasitasMaks) {
+            sektorparkir[3].kendaraanSaatIni++;
+            ticket.sektor = "C2";
+        } else {
+            cout << "Sektor Penuh atau Tidak Valid!" << endl;
+            return;
+        }
     }
+
     cout << "Masukkan Nomor Polisi (tanpa spasi): ";
     cin >> id;
 
     string formattedID = formatID(id);
     ticket.nopol = formattedID;
     ticket.kode = rdnumber();
-    ticket.sektor = "sektor"; //Sektor sementara
     ticket.tipeKendaraan = intipe;
-    
+
     dbkendaraan.open(dateclean + ".txt", ios::app);
-    dbkendaraan << "\n" << id << ";" << ticket.kode << ";" << "sektor" <<";" << ticket.tipeKendaraan << ";" << ticket.entryTime;
+    dbkendaraan << "\n" << id << ";" << ticket.kode << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime;
     dbkendaraan.close();
 
-    //Menulis data ke file history
+    // Menulis data ke file history
     historyFile.open("history.txt", ios::app);
-    historyFile << "\n" << dateclean << ";" << ticket.nopol << ";" << "sektor" << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";-\n";
+    historyFile << "\n" << dateclean << ";" << ticket.nopol << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";-\n";
     historyFile.close();
 
-    cout << "Mencetak karcis untuk: \nNopol : " << ticket.nopol << "\nKode : " << ticket.kode << "\nSektor : " << ticket.sektor << "\n Jam Masuk : " << ticket.entryTime ;
+    cout << "Mencetak karcis untuk: \nNopol : " << ticket.nopol << "\nKode : " << ticket.kode << "\nSektor : " << ticket.sektor << "\nJam Masuk : " << ticket.entryTime;
 }
 
-void keluar(const string& dateclean){
+void keluar(const string& dateclean) {
     ifstream dbkendaraanInput, historyFileInput;
     ofstream dbkendaraanOutput, historyFileOutput;
     string line, nopol, kode, sektor, tipe, jamMasuk, jamKeluar;
     bool found = false;
 
-    //Waktu saat ini
+    // Waktu saat ini
     time_t now = time(0);
     tm* localtm = localtime(&now);
     char currentJam[6];
@@ -192,7 +268,7 @@ void keluar(const string& dateclean){
     cout << "Masukkan Nomor Polisi (tanpa spasi): ";
     cin >> id;
 
-     // Membuka file
+    // Membuka file
     dbkendaraanInput.open(dateclean + ".txt");
     if (!dbkendaraanInput.is_open()) {
         cout << "File tidak ditemukan!" << endl;
@@ -206,27 +282,44 @@ void keluar(const string& dateclean){
     while (getline(dbkendaraanInput, line)) {
         size_t pos = line.find(';');
         if (pos != string::npos) {
-            nopol = line.substr(0, pos);
+            nopol = line.substr(0, pos);  // Nopol ada di posisi pertama
+            size_t kodePos = line.find(';', pos + 1);  // Cari posisi kode setelah Nopol
+            if (kodePos != string::npos) {
+                kode = line.substr(pos + 1, kodePos - pos - 1);  // Ambil kode
+                size_t sektorPos = line.find(';', kodePos + 1);  // Cari posisi sektor
+                if (sektorPos != string::npos) {
+                    sektor = line.substr(kodePos + 1, sektorPos - kodePos - 1);  // Ambil sektor
+                    size_t tipePos = line.find(';', sektorPos + 1);  // Cari posisi tipe
+                    if (tipePos != string::npos) {
+                        tipe = line.substr(sektorPos + 1, tipePos - sektorPos - 1);  // Ambil tipe kendaraan
+                        jamMasuk = line.substr(tipePos + 1);  // Ambil jamMasuk setelah tipe kendaraan
+                    }
+                }
+            }
+            
+            // Jika ditemukan Nopol yang sesuai
             if (nopol == id) {
                 // Data ditemukan
                 found = true;
-
-                // Mencari informasi kendaraan untuk ditampilkan
-                size_t kodePos = line.find(';', pos + 1);
-                size_t sektorPos = line.find(';', kodePos + 1);
-
-                kode = line.substr(pos + 1, kodePos - pos - 1);
-                sektor = line.substr(kodePos + 1, sektorPos - kodePos - 1);
-                tipe = line.substr(sektorPos + 1);
 
                 cout << "Kendaraan ditemukan:\n";
                 cout << "Nopol: " << formatID(nopol) << "\n";
                 cout << "Kode Karcis: " << kode << "\n";
                 cout << "Sektor: " << sektor << "\n";
                 cout << "Tipe Kendaraan: " << tipe << "\n";
+                cout << "Jam Masuk: " << jamMasuk << "\n";
+                cout << "Jam Keluar: " << jamKeluar << "\n";
                 cout << "Kendaraan berhasil keluar. Terima kasih!" << endl;
-                
-                //Tambah data di file history dengan jam keluar
+
+                // Update jumlah kendaraan di sektor
+                for (int i = 0; i < jumlahSektor; ++i) {
+                    if (sektor == sektorparkir[i].nama) {
+                        sektorparkir[i].kendaraanSaatIni--;
+                        break;
+                    }
+                }
+
+                // Tambah data di file history dengan jam keluar
                 historyFileInput.open("history.txt");
                 historyFileOutput.open("temp_history.txt");
                 string historyLine;
@@ -240,19 +333,19 @@ void keluar(const string& dateclean){
                 }
                 historyFileInput.close();
                 historyFileOutput.close();
-                //Ganti File history dengan yang sudah update
+
+                // Ganti File history dengan yang sudah update
                 remove("history.txt");
                 rename("temp_history.txt", "history.txt");
+
                 continue;
             }
         }
-        //Menyalin data file utama yang bukan kendaraan yang keluar ke file sementara.
+        // Menyalin data file utama yang bukan kendaraan yang keluar ke file sementara.
         dbkendaraanOutput << line << "\n";
     }
     dbkendaraanInput.close();
     dbkendaraanOutput.close();
-
-
 
     // Ganti file lama dengan file baru jika kendaraan ditemukan
     if (found) {
