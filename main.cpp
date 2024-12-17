@@ -46,20 +46,8 @@ bool checkdatabase(const string& formatted_date) {
 }
 
 int rdnumber() {
-    int digits[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};  // Digits to pick from
-    int randomNumber = 0;  // The final 4-digit number
-    int counter = 0;  // Counter to simulate the "random" factor
-
-    // Generate a 4-digit number
-    for (int i = 0; i < 4; ++i) {
-        int index = (counter * 12345 + 6789) % 9;  // A basic function to vary the index
-        int digit = digits[index];  // Get the corresponding digit from the array
-
-        randomNumber = randomNumber * 10 + digit;  // Append the digit to the random number
-        counter++;
-    }
-
-    return randomNumber;  // Return the random 4-digit number
+    srand(time(NULL));
+    return rand() % 9000 + 1000;
 }
 
 void loadSektorData() {
@@ -122,6 +110,25 @@ int main() {
             break;
         case 3:
             tampilkanSektor();
+            cout << "\n=== Pilih Opsi Menu ===" << endl;
+            cout << "1. Kendaraan Masuk" << endl;
+            cout << "2. Kendaraan keluar" << endl;
+            cout << "3. Exit Program" << endl;
+            cout << "Pilih Opsi: ";
+            cin >> p1;
+            switch(p1) {
+            case 1:
+                masuk(dateclean);
+                break;
+            case 2:
+                keluar(dateclean);
+                break;
+            case 3:
+                cout << "Anda telah keluar dari program" << endl;
+                break;
+            default:
+                cout << "Pilihan tidak valid" << endl;
+            }
             break;
         case 4:
             cout << "Anda telah keluar dari program" << endl;
@@ -141,10 +148,11 @@ int main() {
 void tampilkanSektor(){
     cout << "\n=== Status Sektor Parkir ===" << endl;
     for (int i = 0; i < jumlahSektor; i++) {
-        cout << "Sektor " << sektorparkir[i].nama << "\nKapasitas Maks: " << sektorparkir[i].kapasitasMaks << "\nTerisi: " << sektorparkir[i].kendaraanSaatIni << endl;
+        cout << "Sektor " << sektorparkir[i].nama << "\nKapasitas Maks: " << sektorparkir[i].kapasitasMaks << "\nTerisi: " << sektorparkir[i].kendaraanSaatIni << "\n" << endl;
     }
 }
 
+string id; // disini agar bisa dipakai untuk masuk & keluar
 // format agar outputnya memiliki spasi pada nopol, namun data di txt tetap tanpa spasi sebagi id
 string formatID(const string& id) {
     string formatted;
@@ -174,7 +182,6 @@ string formatID(const string& id) {
     return formatted;
 }
 
-string id; // disini agar bisa dipakai untuk masuk & keluar
 void masuk(const string& dateclean) {
     ofstream dbkendaraan, historyFile;
     string intipe;
@@ -186,7 +193,6 @@ void masuk(const string& dateclean) {
     tm* localtm = localtime(&now);
     char jamMasuk[6];
     strftime(jamMasuk, sizeof(jamMasuk), "%H:%M", localtm);
-    ticket.entryTime = string(jamMasuk);
 
     cout << "=============================" << endl;
     cout << "Selamat datang pada menu masuk" << endl;
@@ -200,10 +206,10 @@ void masuk(const string& dateclean) {
         string sektorPilihan;
         cin >> sektorPilihan;
 
-        if (sektorPilihan == "B1" && sektorparkir[0].kendaraanSaatIni < sektorparkir[0].kapasitasMaks) {
+        if ((sektorPilihan == "B1" || sektorPilihan == "b1") && sektorparkir[0].kendaraanSaatIni < sektorparkir[0].kapasitasMaks) {
             sektorparkir[0].kendaraanSaatIni++;
             ticket.sektor = "B1";
-        } else if (sektorPilihan == "B2" && sektorparkir[1].kendaraanSaatIni < sektorparkir[1].kapasitasMaks) {
+        } else if ((sektorPilihan == "B2" || sektorPilihan == "b2") && sektorparkir[1].kendaraanSaatIni < sektorparkir[1].kapasitasMaks) {
             sektorparkir[1].kendaraanSaatIni++;
             ticket.sektor = "B2";
         } else {
@@ -216,10 +222,10 @@ void masuk(const string& dateclean) {
         string sektorPilihan;
         cin >> sektorPilihan;
 
-        if (sektorPilihan == "C1" && sektorparkir[2].kendaraanSaatIni < sektorparkir[2].kapasitasMaks) {
+        if ((sektorPilihan == "C1" || sektorPilihan == "c1") && sektorparkir[2].kendaraanSaatIni < sektorparkir[2].kapasitasMaks) {
             sektorparkir[2].kendaraanSaatIni++;
             ticket.sektor = "C1";
-        } else if (sektorPilihan == "C2" && sektorparkir[3].kendaraanSaatIni < sektorparkir[3].kapasitasMaks) {
+        } else if ((sektorPilihan == "C2" || sektorPilihan == "c2") && sektorparkir[3].kendaraanSaatIni < sektorparkir[3].kapasitasMaks) {
             sektorparkir[3].kendaraanSaatIni++;
             ticket.sektor = "C2";
         } else {
@@ -235,14 +241,15 @@ void masuk(const string& dateclean) {
     ticket.nopol = formattedID;
     ticket.kode = rdnumber();
     ticket.tipeKendaraan = intipe;
+    ticket.entryTime = string(jamMasuk);
 
     dbkendaraan.open(dateclean + ".txt", ios::app);
-    dbkendaraan << "\n" << id << ";" << ticket.kode << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime;
+    dbkendaraan << "\n" << id << ";" << ticket.kode << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";" << "-\n";
     dbkendaraan.close();
 
     // Menulis data ke file history
     historyFile.open("history.txt", ios::app);
-    historyFile << "\n" << dateclean << ";" << ticket.nopol << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";-\n";
+    historyFile << "\n" << dateclean << ";" << ticket.nopol << ";" << ticket.sektor << ";" << ticket.tipeKendaraan << ";" << ticket.entryTime << ";" << "-\n";
     historyFile.close();
 
     cout << "Mencetak karcis untuk: \nNopol : " << ticket.nopol << "\nKode : " << ticket.kode << "\nSektor : " << ticket.sektor << "\nJam Masuk : " << ticket.entryTime;
@@ -324,7 +331,7 @@ void keluar(const string& dateclean) {
                 historyFileOutput.open("temp_history.txt");
                 string historyLine;
                 while (getline(historyFileInput, historyLine)){
-                    if (historyLine.find(nopol) != string::npos &&
+                    if (historyLine.find(formatID(nopol)) != string::npos &&
                     historyLine.find("-") != string::npos) {
                         size_t lastDelimiter = historyLine.rfind(';');
                         historyLine = historyLine.substr(0, lastDelimiter) + ";" + jamKeluar;
@@ -335,9 +342,9 @@ void keluar(const string& dateclean) {
                 historyFileOutput.close();
 
                 // Ganti File history dengan yang sudah update
-                remove("history.txt");
-                rename("temp_history.txt", "history.txt");
-
+                 remove("history.txt");
+                 rename("temp_history.txt", "history.txt");
+                 
                 continue;
             }
         }
