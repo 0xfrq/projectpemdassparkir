@@ -166,7 +166,12 @@ void start() {
 }
 
 int main() {
-  start();
+  string in = "y";
+  do {
+    start();
+    cout << "Jalankan kembali? (y/n): ";
+    cin >> in;
+  } while (in=="y");
 
   return 0;
 }
