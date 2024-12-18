@@ -133,25 +133,6 @@ void start() {
     break;
   case 3:
     tampilkanSektor();
-    cout << "\n=== Pilih Opsi Menu ===" << endl;
-    cout << "1. Kendaraan Masuk" << endl;
-    cout << "2. Kendaraan keluar" << endl;
-    cout << "3. Exit Program" << endl;
-    cout << "Pilih Opsi: ";
-    cin >> p1;
-    switch (p1) {
-    case 1:
-      masuk(dateclean);
-      break;
-    case 2:
-      keluar(dateclean);
-      break;
-    case 3:
-      cout << "Anda telah keluar dari program" << endl;
-      break;
-    default:
-      cout << "Pilihan tidak valid" << endl;
-    }
     break;
   case 4:
     cout << "Anda telah keluar dari program" << endl;
@@ -172,7 +153,7 @@ int main() {
     cout << "Jalankan kembali? (y/n): ";
     cin >> in;
   } while (in=="y");
-
+  cout << "Terima Kasih!";
   return 0;
 }
 
