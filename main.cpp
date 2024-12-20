@@ -172,7 +172,7 @@ string formatID(const string & id) {
   size_t length = id.length();
   int index = 0;
 
-  while (index < length && isalpha(id[index])) {
+  while (index < length && ((id[index] >= 'A' && id[index] <= 'Z') || (id[index] >= 'a' && id[index] <= 'z'))) {
     formatted += id[index];
     index++;
   }
@@ -180,7 +180,7 @@ string formatID(const string & id) {
     formatted += " ";
   }
 
-  while (index < length && isdigit(id[index])) {
+ while (index < length && (id[index] >= '0' && id[index] <= '9')) {
     formatted += id[index];
     index++;
   }
@@ -188,7 +188,7 @@ string formatID(const string & id) {
     formatted += " ";
   }
 
-  while (index < length && isalpha(id[index])) {
+ while (index < length && ((id[index] >= 'A' && id[index] <= 'Z') || (id[index] >= 'a' && id[index] <= 'z'))) {
     formatted += id[index];
     index++;
   }
@@ -403,11 +403,8 @@ void keluar(const string & dateclean) {
 
   // Ganti file lama dengan file baru jika kendaraan ditemukan
   if (found) {
-    if (remove((dateclean + ".txt").c_str()) != 0) {
-      cout << "Gagal menghapus file lama!" << endl;
-    } else if (rename("temp.txt", (dateclean + ".txt").c_str()) != 0) {
-      cout << "Gagal mengganti file sementara!" << endl;
-    }
+    remove((dateclean + ".txt").c_str()); // Hapus file lama
+    rename("temp.txt", (dateclean + ".txt").c_str()); // Ganti nama file sementara
   } else {
     cout << "Kendaraan dengan Nopol " << formatID(id) << " tidak ditemukan!" << endl;
     remove("temp.txt"); // Hapus file sementara jika tidak ada perubahan
