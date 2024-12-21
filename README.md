@@ -15,8 +15,24 @@ Sistem pemeriksaan keberadaan ID tersebut di file.
 Jika ID cocok, data kendaraan dihapus dari file.
 
 # Step By Step
-
-  # Menu keluar 
+  # Menu Masuk
+    1. Membuka file untuk menyimpan data kendaraan dan riwayat, serta membuat objek Ticket untuk menyimpan informasi tiket.
+    2. Mendapatkan waktu saat ini dalam format HH:MM untuk mencatat jam masuk kendaraan.
+    3. Menampilkan menu untuk pengguna dengan pilihan jenis kendaraan: Motor, Mobil, atau Kembali ke menu utama.
+    4. Menerima input dari pengguna untuk menentukan jenis kendaraan yang masuk.
+    5. Mengacu pada sektor parkir yang tersedia: B1 dan B2 untuk Motor, C1 dan C2 untuk Mobil.
+    6. Jika pengguna memilih Motor, sistem memeriksa kapasitas sektor B1 dan B2 dan menentukan sektor yang masih tersedia atau memilih secara acak jika keduanya kosong.
+    7. Jika pengguna memilih Mobil, sistem memeriksa kapasitas sektor C1 dan C2 dan menentukan sektor yang masih tersedia atau memilih secara acak jika keduanya kosong.
+    8. Jika kedua sektor untuk jenis kendaraan penuh, menampilkan pesan bahwa parkir penuh dan memanggil ulang fungsi untuk mencoba lagi.
+    9. Jika pengguna memilih opsi kembali, sistem memanggil fungsi main untuk kembali ke menu utama.
+    10. Meminta pengguna untuk memasukkan nomor polisi kendaraan yang akan diparkir.
+    11. Memformat nomor polisi agar sesuai dengan aturan yang ditentukan.
+    12. Membuat tiket dengan menyimpan data nomor polisi, kode tiket unik, tipe kendaraan, sektor parkir, dan waktu masuk ke dalam objek Ticket.
+    13. Menulis data tiket ke file log harian kendaraan (dbkendaraan) untuk mencatat parkir pada hari tersebut.
+    14. Menulis data tiket ke file riwayat parkir umum (historyFile) untuk mencatat seluruh riwayat kendaraan.
+    15. Menampilkan informasi tiket kepada pengguna, termasuk nomor polisi, kode tiket, sektor parkir, dan jam masuk kendaraan.
+    16. Fungsi selesai setelah mencetak informasi tiket ke layar.
+  # Menu Keluar 
     1. Inisialisasi Variabel
         ifstream dbkendaraanInput, historyFileInput: Untuk membaca file kendaraan dan file sejarah.
         ofstream dbkendaraanOutput, historyFileOutput: Untuk menulis file kendaraan yang telah diperbarui dan file sejarah           yang baru.
