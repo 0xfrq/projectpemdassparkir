@@ -16,22 +16,75 @@ Jika ID cocok, data kendaraan dihapus dari file.
 
 # Step By Step
   # Menu Masuk
-    1. Membuka file untuk menyimpan data kendaraan dan riwayat, serta membuat objek Ticket untuk menyimpan informasi tiket.
-    2. Mendapatkan waktu saat ini dalam format HH:MM untuk mencatat jam masuk kendaraan.
-    3. Menampilkan menu untuk pengguna dengan pilihan jenis kendaraan: Motor, Mobil, atau Kembali ke menu utama.
-    4. Menerima input dari pengguna untuk menentukan jenis kendaraan yang masuk.
-    5. Mengacu pada sektor parkir yang tersedia: B1 dan B2 untuk Motor, C1 dan C2 untuk Mobil.
-    6. Jika pengguna memilih Motor, sistem memeriksa kapasitas sektor B1 dan B2 dan menentukan sektor yang masih tersedia atau memilih secara acak jika keduanya kosong.
-    7. Jika pengguna memilih Mobil, sistem memeriksa kapasitas sektor C1 dan C2 dan menentukan sektor yang masih tersedia atau memilih secara acak jika keduanya kosong.
-    8. Jika kedua sektor untuk jenis kendaraan penuh, menampilkan pesan bahwa parkir penuh dan memanggil ulang fungsi untuk mencoba lagi.
-    9. Jika pengguna memilih opsi kembali, sistem memanggil fungsi main untuk kembali ke menu utama.
-    10. Meminta pengguna untuk memasukkan nomor polisi kendaraan yang akan diparkir.
-    11. Memformat nomor polisi agar sesuai dengan aturan yang ditentukan.
-    12. Membuat tiket dengan menyimpan data nomor polisi, kode tiket unik, tipe kendaraan, sektor parkir, dan waktu masuk ke dalam objek Ticket.
-    13. Menulis data tiket ke file log harian kendaraan (dbkendaraan) untuk mencatat parkir pada hari tersebut.
-    14. Menulis data tiket ke file riwayat parkir umum (historyFile) untuk mencatat seluruh riwayat kendaraan.
-    15. Menampilkan informasi tiket kepada pengguna, termasuk nomor polisi, kode tiket, sektor parkir, dan jam masuk kendaraan.
-    16. Fungsi selesai setelah mencetak informasi tiket ke layar.
+## Mendapatkan waktu saat ini
+1. Gunakan `time(0)` untuk mendapatkan waktu sekarang.
+2. Format waktu ke `HH:MM` dengan `strftime` dan simpan di `jamMasuk`.
+
+## Tampilkan menu pilihan tipe kendaraan
+1. Pilihan:
+   - **Motor**
+   - **Mobil**
+   - **Kembali ke menu utama**.
+
+## Input pilihan tipe kendaraan
+1. Simpan input pengguna ke variabel `tipe`.
+
+## Inisialisasi sektor parkir
+1. Tetapkan sektor untuk tipe kendaraan:
+   - Motor: Sektor B1, B2.
+   - Mobil: Sektor C1, C2.
+
+## Proses tipe kendaraan
+1. **Jika Motor (tipe 1):**
+   - Periksa ketersediaan Sektor B1 dan B2.
+   - Jika B1 penuh, tambahkan kendaraan ke B2, dan sebaliknya.
+   - Jika kedua sektor penuh:
+     - Tampilkan pesan "sektor penuh".
+     - Panggil fungsi `masuk` kembali.
+   - Jika masih tersedia:
+     - Pilih sektor secara acak (B1 atau B2).
+2. **Jika Mobil (tipe 2):**
+   - Periksa ketersediaan Sektor C1 dan C2.
+   - Jika C1 penuh, tambahkan kendaraan ke C2, dan sebaliknya.
+   - Jika masih tersedia:
+     - Pilih sektor secara acak (C1 atau C2).
+3. **Jika Kembali (tipe 3):**
+   - Kembali ke menu utama dengan memanggil fungsi `main`.
+4. **Input invalid:**
+   - Tampilkan pesan kesalahan.
+   - Panggil fungsi `masuk` kembali.
+
+## Input nomor polisi kendaraan
+1. Pengguna memasukkan nomor polisi (tanpa spasi).
+2. Format nomor polisi dengan `formatID()` dan simpan ke variabel `formattedID`.
+
+## Buat tiket parkir
+1. Isi data tiket:
+   - `nopol`: Nomor polisi terformat.
+   - `kode`: Nomor unik dengan `rdnumber()`.
+   - `tipeKendaraan`: Tipe kendaraan (Motor/Mobil).
+   - `entryTime`: Jam masuk.
+   - `sektor`: Sektor parkir.
+
+## Simpan data ke file parkir harian
+1. Buka file dengan nama `dateclean + ".txt"`.
+2. Tambahkan data kendaraan dalam format:  
+nopol;kode;sektor;tipeKendaraan;jamMasuk;-
+## Simpan data ke file history
+1. Buka atau buat file `history.txt`.
+2. Tambahkan data dalam format:  
+dateclean;nopol;sektor;tipeKendaraan;jamMasuk;-
+## Tampilkan informasi tiket parkir ke layar
+1. Tampilkan data tiket:
+- Nomor polisi (`nopol`).
+- Kode tiket (`kode`).
+- Sektor parkir (`sektor`).
+- Jam masuk (`entryTime`).
+
+## Selesai
+1. Fungsi selesai, dan kendaraan berhasil masuk sistem parkir.
+
+
   # Menu Keluar 
     1. Inisialisasi Variabel
         ifstream dbkendaraanInput, historyFileInput: Untuk membaca file kendaraan dan file sejarah.
