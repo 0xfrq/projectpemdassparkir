@@ -47,5 +47,5 @@ Jika ID cocok, data kendaraan dihapus dari file.
     8. Menutup File
         File kendaraan dan file sementara ditutup setelah proses selesai.
     9. Mengganti File(perhari)
-        Jika id ditemukan dan file telah diperbarui, file lama (berdasarkan tanggal) dihapus, dan file sementara                     diganti namanya menjadi file baru.
+        Jika id ditemukan dan file telah diperbarui, file lama (berdasarkan tanggal) dihapus, dan file sementara diganti namanya menjadi file baru.
         Jika tidak ditemukan, program akan menampilkan pesan kesalahan dan menghapus file sementara yang dibuat.
