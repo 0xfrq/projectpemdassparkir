@@ -150,7 +150,7 @@ int main() {
   string in = "y";
   do {
     start();
-    cout << "Jalankan kembali? (y/n): ";
+    cout << "\nJalankan kembali? (y/n): ";
     cin >> in;
   } while (in=="y");
   cout << "Terima Kasih!";
