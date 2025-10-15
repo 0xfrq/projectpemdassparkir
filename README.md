@@ -1,4 +1,4 @@
-``` Deadline : -296 hari lagi.```
+``` Deadline : -297 hari lagi.```
 # Project Pemdas Parkir
 Program bertujuan untuk mengelola data kendaraan yang masuk dan keluar area parkir dengan sistem berbasis file sederhana. Data kendaraan akan dicatat berdasarkan nomor polisi (nopol) dan jenis kendaraan, dengan setiap entri diberi kode ID acak untuk identifikasi unik. Proses ini mempermudah pengelolaan data parkir dan memastikan keakuratan pencatatan.
 
